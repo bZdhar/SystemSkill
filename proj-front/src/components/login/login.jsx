@@ -12,13 +12,19 @@ function Login() {
   const navigate = useNavigate();
 
   const [values, setValues] = React.useState({
-    username: "",
-    password: localStorage.getItem("senha")?localStorage.getItem("senha"):"",
-    passwordRegister: "",
-    passwordConfirm: "",
-    showPassword: false,
+    username:"",
+    password:localStorage.getItem("senha")?localStorage.getItem("senha"):"",
+    passwordRegister:"",
+    passwordConfirm:"",
+    showPassword:false,
+    showRegisterPassword:false,
+    showConfirmPassword:false,
+    passwordMatchError: ""
   });
 
+  const handleUsuarioChange = (event) =>{
+    setValues({...values, username: event.target.value});
+  }
 
   const handleClickShowPassword = () => {
     setValues({ ...values, showPassword: !values.showPassword });
@@ -33,10 +39,12 @@ function Login() {
     setRememberPassword(event.target.checked);
   };
 
+  const handleEntrar = async (event) => {
+    event.preventDefault();
+  
+    if(values.username === '' | null && values.password === '' | null)
+      return;
 
-  const handleEntrar = () => {
-    console.log(values.password)
-    console.log(rememberBox)
     if (rememberBox == true) { 
         localStorage.setItem("senha", values.password);
     }    
@@ -47,69 +55,40 @@ function Login() {
     localStorage.setItem("rememberBox",rememberBox);
 
     const data = {
-        username: values.userName,
+        username: values.username,
         password: values.password
     };
 
-    // fetch('https://exemplo.com/api/login', {
-    //         method: 'POST',
-    //         headers: {
-    //           'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(data)
-    //       })
-    //       .then(response => {
-    //         if (response.ok) {
-    //           return response.json();
-    //         } else {
-    //           throw new Error('Erro na resposta da API');
-    //         }
-    //       })
-    //       .then(data => {
-    //         // Faça algo com os dados recebidos (exemplo: redirecionar para uma página interna)
-    //         console.log('Login bem-sucedido:', data);
-    //       })
-    //       .catch(error => {
-    //         // Trate os erros aqui
-    //         console.error('Erro ao fazer login:', error);
-    //       });
-    //     };
-    navigate("home");
+    const response = await fetch("http://localhost:8080/systemskills/auth/login",{
+      method:"POST",
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+    
+    if(response.status === 200){
+      const tokenResponse = await response.json();
+      localStorage.setItem("token", tokenResponse.token);
+      navigate("/home");
+    }
   }
 
-
-  
-  const handleRegisterPassword = () => {
-    setValues({ ...values, showPassword: !values.showPassword });
-  };
-
-  const handleClickShowRegisterPassword = () => {
-    setValues({ ...values, showPassword: !values.showPassword });
-    setEyeRegister(!eyeIsClosedRegister)
-  };
-
-
-  const handleConfirmPassword = () => {
-    setValues({ ...values, showPassword: !values.showPassword });
-  };
-
-  const handleClickShowConfirmPassword = () => {
-    setValues({ ...values, showPassword: !values.showPassword });
-    setEyeConfirm(!eyeIsClosedConfirm)
-  };
-
-
+  const handleBtnRegister = () => {
+    navigate ("/cadastro")
+  }
+  // const handleRegisterError = (event) => {
+  //   if 
+  // }
   return (
-    <div>
+    <div className="main">
       <div className="login">
         <form className="form">
-          <label htmlFor="chk">Faça seu login!</label>
+          <label htmlFor="chk" id="chk" aria-hidden="true"> Faça seu login!</label>
           <br />
           <input
             className="input"
+            onChange={handleUsuarioChange}
             value={values.userName}
             type="email"
-            name="email"
             placeholder="Nome do usuário"
             required=""
           />
@@ -117,17 +96,17 @@ function Login() {
           <InputGroup>
             <input
               onChange={(event) => handlePasswordChange(event)}
+              className="input"
               id="pswd"
               value={values.password}
               type={values.showPassword ? "text" : "password"}
-              name="pswd"
               placeholder="Inserir sua senha"
               required=""
             />
             <div className="input-group-append">
             <button
               className="btn btn-outline-secondary"
-              id="eye"
+              id="eyePassword"
               onClick={(event) => {
                 event.preventDefault();
                 handleClickShowPassword();
@@ -148,81 +127,16 @@ function Login() {
           </label>
           <br />
           <button
+          id="btnEntrar"
           onClick={handleEntrar}
           > Entrar!
           </button>
-        </form>
-      </div>
-      
-      <br />
-
-      <div className="register">
-        <form className="form">
-          <label htmlFor="chk" aria-hidden="true">
-            Cadastre-se
-          </label>
           <br />
-          <input
-            className="input"
-            type="text"
-            name="txt"
-            placeholder="Nome de Usuário"
-            required=""
-          />
-          <br />
-          <input
-            className="input"
-            type="email"
-            name="email"
-            placeholder="Email"
-            required=""
-          />
-          <br />
-          <input
-            onChange={(event) => handleRegisterPassword(event)}
-            value={values.passwordRegister}
-            type={values.showRegisterPassword ? "text" : "password"}
-            className="input"
-            name="pswd"
-            placeholder="Senha"
-            required=""
-          />
-          <div className="input-group-append">
-            <button
-              className="btn btn-outline-secondary"
-              id="eye"
-              onClick={(event) => {
-                event.preventDefault();
-                handleClickShowRegisterPassword();
-              }}
-            >
-              {eyeIsClosedRegister ? <VscEyeClosed /> : <VscEye />}
-            </button>
-            </div>
-          <br />
-          <input
-            onChange={(event) => handleConfirmPassword(event)}
-            value={values.passwordConfirm}
-            type={values.showConfirmPassword ? "text" : "password"}            
-            className="input"
-            type="password"
-            name="pswd"
-            placeholder="Confirme a Senha"
-            required=""
-          />
-          <div className="input-group-append">
-            <button
-              className="btn btn-outline-secondary"
-              id="eye"
-              onClick={(event) => {event.preventDefault();
-              handleClickShowConfirmPassword();
-              }}
-            >
-              {eyeIsClosedConfirm ? <VscEyeClosed /> : <VscEye />}
-            </button>
-            </div>
-          <br />
-          <button>Cadastrar</button>
+          <button
+          onClick={handleBtnRegister}
+          id="btnCadastrar">
+          Cadastrar-se
+          </button>
         </form>
       </div>
     </div>

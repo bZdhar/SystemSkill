@@ -1,0 +1,20 @@
+
+
+#btnSave, #btnCancel, #btnExit {
+  width: 100%;
+  margin-top: 20px;
+  text-align: center;
+  justify-content: center;
+  display: inline;
+  flex-direction: row;
+  border-radius: 0 18px 0 18px;
+  background-color: #046F7D;
+  color: #fff;
+  border-color: #CBFBE6;
+  box-shadow: 0 8px 6px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  cursor: pointer;
+  transition-duration: 0.4s;
+  .hover {
+      box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  }
+}
